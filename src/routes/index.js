@@ -11,22 +11,22 @@ cloudinary.config({
 const Photo = require('../models/Photo');
 const fs = require('fs-extra');
 
-router.get('/', async (req, res) => {
+router.get('/', async(req, res) => {
     const photos = await Photo.find();
-    res.render('images', {photos});
+    res.render('images', { photos });
 });
 
-router.get('/images/add', async (req, res) => {
+router.get('/images/add', async(req, res) => {
     const photos = await Photo.find();
-    res.render('image_form', {photos});
+    res.render('image_form', { photos });
 });
 
-router.post('/images/add', async (req, res) => {
+router.post('/images/add', async(req, res) => {
     const { title, description } = req.body;
     // Saving Image in Cloudinary
     try {
-        const result = await cloudinary.v2.uploader.upload(req.file.path);
-        const newPhoto = new Photo({title, description, imageURL: result.url, public_id: result.public_id});
+        const result = await cloudinary.uploader.upload(req.file.path);
+        const newPhoto = new Photo({ title, description, imageURL: result.url, public_id: result.public_id });
         await newPhoto.save();
         await fs.unlink(req.file.path);
     } catch (e) {
@@ -35,10 +35,10 @@ router.post('/images/add', async (req, res) => {
     res.redirect('/');
 });
 
-router.get('/images/delete/:photo_id', async (req, res) => {
+router.get('/images/delete/:photo_id', async(req, res) => {
     const { photo_id } = req.params;
     const photo = await Photo.findByIdAndRemove(photo_id);
-    const result = await cloudinary.v2.uploader.destroy(photo.public_id);
+    const result = await cloudinary.uploader.destroy(photo.public_id);
     console.log(result)
     res.redirect('/images/add');
 });
